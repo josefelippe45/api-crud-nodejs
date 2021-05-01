@@ -7,8 +7,10 @@
   "author": "José Felippe Gonçalves Oliveira <jose.oliveira370@etec.sp.gov.br>",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mongoose": "^5.12.7"
   },
   "scripts": {
     "start": "node src/index.js",
