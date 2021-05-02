@@ -54,13 +54,18 @@ router.get('/users/:id', getUser, (_, res) => {
 });
 
 router.put('/users/:id', getUser, async (req, res, next) => {
+  const { email } = req.body;
   try {
-    const updateData = await res.user.set(req.body);
-    res.json(updateData);
+    if (!validateEmail(email)) res.status(400).send('Invalid email');
+    else {
+      const updatedData = await res.user.save();
+      res.json(updatedData);
+    }
   } catch (err) {
     next(err);
   }
 });
+
 router.delete('/users/:id', getUser, async (_, res) => {
   try {
     await res.user.deleteOne();
