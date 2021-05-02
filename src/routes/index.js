@@ -1,5 +1,5 @@
-const router = require("express").Router();
-const User = require("../models/user");
+const router = require('express').Router();
+const User = require('../models/user');
 
 const getUser = async (req, res, next) => {
   let user;
@@ -7,7 +7,7 @@ const getUser = async (req, res, next) => {
   try {
     user = await User.findById(id);
     if (user == null) {
-      return res.status(404).json({ message: "Cannot find User" });
+      return res.status(404).json({ message: 'Cannot find User' });
     }
   } catch (err) {
     return res.status(500).json({ message: err.message });
@@ -15,10 +15,10 @@ const getUser = async (req, res, next) => {
   res.user = user;
   next();
 };
-router.get("/", (_, res) => {
-  res.status(200).json({ msg: "working..." });
+router.get('/', (_, res) => {
+  res.status(200).json({ msg: 'working...' });
 });
-router.get("/users", async (_, res) => {
+router.get('/users', async (_, res) => {
   try {
     const users = await User.find();
     res.json(users);
@@ -27,7 +27,7 @@ router.get("/users", async (_, res) => {
   }
 });
 
-router.post("/users", async (req, res, next) => {
+router.post('/users', async (req, res, next) => {
   const { name, password } = req.body;
   const user = new User({
     name,
@@ -41,11 +41,11 @@ router.post("/users", async (req, res, next) => {
   }
 });
 
-router.get("/users/:id", getUser, (_, res) => {
+router.get('/users/:id', getUser, (_, res) => {
   res.json(res.user);
 });
 
-router.put("/users/:id", getUser, async (req, res, next) => {
+router.put('/users/:id', getUser, async (req, res, next) => {
   try {
     const updateData = await res.user.set(req.body);
     res.json(updateData);
@@ -53,16 +53,16 @@ router.put("/users/:id", getUser, async (req, res, next) => {
     next(err);
   }
 });
-router.delete("/users/:id", getUser, async (_, res) => {
+router.delete('/users/:id', getUser, async (_, res) => {
   try {
     await res.user.deleteOne();
-    res.json({ message: "Data deleted successfully" });
+    res.json({ message: 'Data deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-router.patch("/users/:id", getUser, async (req, res, next) => {
+router.patch('/users/:id', getUser, async (req, res, next) => {
   const { name, password } = req.body;
   if (name != null) {
     res.user.name = name;
