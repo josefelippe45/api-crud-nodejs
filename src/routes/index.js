@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const User = require('../models/user');
 const validateEmail = require('../utils/email');
+const bcrypt = require('bcrypt');
 
 const getUser = async (req, res, next) => {
   let user;
@@ -29,13 +30,26 @@ router.get('/users', async (_, res) => {
   }
 });
 
-router.post('/users', async (req, res, next) => {
+router.post('/register', async (req, res, next) => {
   const { name, password, email } = req.body;
+
+  const userExists = await User.findOne({ name });
+  if (userExists)
+    return res.status(400).send({ error: 'Username already in use.' });
+
+  const emailExists = await User.findOne({ email });
+  if (emailExists)
+    return res.status(400).send({ error: 'Email already in use.' });
+
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(password, salt);
+
   const user = new User({
     name,
-    password,
+    password: hash,
     email,
   });
+
   try {
     if (!validateEmail(email)) {
       res.status(400).send('Invalid email');
