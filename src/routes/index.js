@@ -15,10 +15,10 @@ const getUser = async (req, res, next) => {
   res.user = user;
   next();
 };
-router.get("/", (req, res, next) => {
+router.get("/", (_, res) => {
   res.status(200).json({ msg: "working..." });
 });
-router.get("/users", async (req, res) => {
+router.get("/users", async (_, res) => {
   try {
     const users = await User.find();
     res.json(users);
@@ -27,7 +27,7 @@ router.get("/users", async (req, res) => {
   }
 });
 
-router.post("/users", async (req, res) => {
+router.post("/users", async (req, res, next) => {
   const { name, password } = req.body;
   const user = new User({
     name,
@@ -37,11 +37,45 @@ router.post("/users", async (req, res) => {
     const newUser = await user.save();
     res.status(201).json({ newUser });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 });
 
-router.get("/users/:id", getUser, (req, res) => {
+router.get("/users/:id", getUser, (_, res) => {
   res.json(res.user);
 });
+
+router.put("/users/:id", getUser, async (req, res, next) => {
+  try {
+    const updateData = await res.user.set(req.body);
+    res.json(updateData);
+  } catch (err) {
+    next(err);
+  }
+});
+router.delete("/users/:id", getUser, async (_, res) => {
+  try {
+    await res.user.deleteOne();
+    res.json({ message: "Data deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.patch("/users/:id", getUser, async (req, res, next) => {
+  const { name, password } = req.body;
+  if (name != null) {
+    res.user.name = name;
+  }
+  if (password != null) {
+    res.user.password = password;
+  }
+  try {
+    const updatedData = await res.user.save();
+    res.json(updatedData);
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
