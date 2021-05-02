@@ -82,8 +82,11 @@ router.patch('/users/:id', getUser, async (req, res, next) => {
     res.user.email = email;
   }
   try {
-    const updatedData = await res.user.save();
-    res.json(updatedData);
+    if (!validateEmail(email)) res.status(400).send('Invalid email');
+    else {
+      const updatedData = await res.user.save();
+      res.json(updatedData);
+    }
   } catch (err) {
     next(err);
   }
