@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const User = require('../models/user');
+const validateEmail = require('../utils/email');
 
 const getUser = async (req, res, next) => {
   let user;
@@ -15,6 +16,7 @@ const getUser = async (req, res, next) => {
   res.user = user;
   next();
 };
+
 router.get('/', (_, res) => {
   res.status(200).json({ msg: 'working...' });
 });
@@ -28,14 +30,20 @@ router.get('/users', async (_, res) => {
 });
 
 router.post('/users', async (req, res, next) => {
-  const { name, password } = req.body;
+  const { name, password, email } = req.body;
   const user = new User({
     name,
     password,
+    email,
   });
   try {
-    const newUser = await user.save();
-    res.status(201).json({ newUser });
+    if (!validateEmail(email)) {
+      res.status(400).send('Invalid email');
+      next();
+    } else {
+      const newUser = await user.save();
+      res.status(201).json({ newUser });
+    }
   } catch (err) {
     next(err);
   }
@@ -63,12 +71,15 @@ router.delete('/users/:id', getUser, async (_, res) => {
 });
 
 router.patch('/users/:id', getUser, async (req, res, next) => {
-  const { name, password } = req.body;
+  const { name, password, email } = req.body;
   if (name != null) {
     res.user.name = name;
   }
   if (password != null) {
     res.user.password = password;
+  }
+  if (email != null) {
+    res.user.email = email;
   }
   try {
     const updatedData = await res.user.save();
