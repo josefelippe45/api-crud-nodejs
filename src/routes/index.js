@@ -23,7 +23,7 @@ const getUser = async (req, res, next) => {
 router.get('/', (_, res) => {
   res.status(200).json({ msg: 'working...' });
 });
-router.get('/users', async (_, res) => {
+router.get('/users', authenticate, async (_, res) => {
   try {
     const users = await User.find();
     res.json(users);
