@@ -2,6 +2,8 @@ const router = require('express').Router();
 const User = require('../models/user');
 const validateEmail = require('../utils/email');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const authenticate = require('../authentication');
 
 const getUser = async (req, res, next) => {
   let user;
@@ -62,7 +64,31 @@ router.post('/register', async (req, res, next) => {
     next(err);
   }
 });
+router.post('/login', async (req, res, next) => {
+  try {
+    const { username, password, email } = req.body;
+    const userExists = await User.findOne({ username });
+    const emailExists = await User.findOne({ email });
 
+    if (!userExists || !emailExists)
+      return res.status(400).send({ error: 'User not found' });
+
+    const validatePassword = await bcrypt.compare(
+      password,
+      userExists.password
+    );
+
+    if (!validatePassword)
+      return res.status(400).send({ error: 'Invalid Password' });
+
+    const token = jwt.sign({ _id: userExists.id }, process.env.SECRET);
+
+    return res.header('auth-token', token).send({ token });
+  } catch (err) {
+    res.status(400);
+    next(err);
+  }
+});
 router.get('/users/:id', getUser, (_, res) => {
   res.json(res.user);
 });
