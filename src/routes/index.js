@@ -87,11 +87,11 @@ router.post('/login', async (req, res, next) => {
     next(err);
   }
 });
-router.get('/users/:id', getUser, (_, res) => {
+router.get('/users/:id', authenticate, getUser, (_, res) => {
   res.json(res.user);
 });
 
-router.put('/users/:id', getUser, async (req, res, next) => {
+router.put('/users/:id', authenticate, getUser, async (req, res, next) => {
   const { email } = req.body;
   try {
     if (!validateEmail(email)) res.status(400).send('Invalid email');
@@ -104,7 +104,7 @@ router.put('/users/:id', getUser, async (req, res, next) => {
   }
 });
 
-router.delete('/users/:id', getUser, async (_, res) => {
+router.delete('/users/:id', authenticate, getUser, async (_, res) => {
   try {
     await res.user.deleteOne();
     res.json({ message: 'Data deleted successfully' });
@@ -113,7 +113,7 @@ router.delete('/users/:id', getUser, async (_, res) => {
   }
 });
 
-router.patch('/users/:id', getUser, async (req, res, next) => {
+router.patch('/users/:id', authenticate, getUser, async (req, res, next) => {
   const { name, password, email } = req.body;
   if (name != null) {
     res.user.name = name;
